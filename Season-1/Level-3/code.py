@@ -13,6 +13,13 @@ def source():
     TaxPayer('foo', 'bar').get_prof_picture(request.args["input"])
 ### Unrelated to the exercise -- Ends here -- Please ignore
 
+def safe_path(path):
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    filepath = os.path.normpath(os.path.join(base_dir, path))
+    if base_dir != os.path.commonpath([base_dir, filepath]):
+        return None
+    return filepath
+
 class TaxPayer:
 
     def __init__(self, username, password):
@@ -27,9 +34,9 @@ class TaxPayer:
         if not path:
             pass
 
-        # defends against path traversal attacks
-        if path.startswith('/') or path.startswith('..'):
-            return None
+        path = safe_path(path)
+        if path == None:
+            return path
 
         # builds path
         base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -47,6 +54,10 @@ class TaxPayer:
 
         if not path:
             raise Exception("Error: Tax form is required for all users")
+        
+        path = safe_path(path)
+        if path == None:
+            return path
 
         with open(path, 'rb') as form:
             tax_data = bytearray(form.read())

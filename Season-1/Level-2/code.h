@@ -25,7 +25,7 @@
 // of this file, would not be known to the non-privileged users of this application
 
 // Internal counter of user accounts
-int userid_next = 0;
+int userid_next = 1;
 
 // The following structure is implementation-speicific and it's supposed to be unknown 
 // to non-privileged users
@@ -49,18 +49,18 @@ int create_user_account(bool isAdmin, const char *username) {
         return INVALID_USER_ID;
     }    
 
-    user_account *ua;
     if (strlen(username) > MAX_USERNAME_LEN) {
         fprintf(stderr, "the username is too long");
         return INVALID_USER_ID;
     }    
+    user_account *ua;
     ua = malloc(sizeof (user_account));
     if (ua == NULL) {
         fprintf(stderr, "malloc failed to allocate memory");
         return INVALID_USER_ID;
     }
     ua->isAdmin = isAdmin;
-    ua->userid = userid_next++;
+    ua->userid = userid_next;
     strcpy(ua->username, username);
     memset(&ua->setting, 0, sizeof ua->setting);
     accounts[userid_next] = ua;
@@ -70,7 +70,7 @@ int create_user_account(bool isAdmin, const char *username) {
 // Updates the matching setting for the specified user and returns the status of the operation
 // A setting is some arbitrary string associated with an index as a key
 bool update_setting(int user_id, const char *index, const char *value) {
-    if (user_id < 0 || user_id >= MAX_USERS)
+    if (user_id < 1 || user_id >= MAX_USERS)
         return false;
 
     char *endptr;
@@ -80,7 +80,7 @@ bool update_setting(int user_id, const char *index, const char *value) {
         return false;
 
     v = strtol(value, &endptr, 10);
-    if (*endptr || i >= SETTINGS_COUNT)
+    if (*endptr || i >= SETTINGS_COUNT || i < 0)
         return false;
     accounts[user_id]->setting[i] = v;
     return true;
